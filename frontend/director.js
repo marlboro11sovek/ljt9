@@ -74,5 +74,102 @@ async function loadDowntimes() {
     }
 }
 
+async function loadStatistics() {
+    try {
+        const jobsRes = await fetch('http://localhost:3000/api/statistics/jobs');
+        const jobsStats = await jobsRes.json();
+
+        const downtimeRes = await fetch('http://localhost:3000/api/statistics/downtime');
+        const downtimeStats = await downtimeRes.json();
+
+        const jobsCtx = document.getElementById('jobsChart').getContext('2d');
+        const downtimeCtx = document.getElementById('downtimeChart').getContext('2d');
+        const jobsLineCtx = document.getElementById('jobsLineChart').getContext('2d');
+        const downtimePieCtx = document.getElementById('downtimePieChart').getContext('2d');
+
+        // Jobs bar chart
+        if (jobsStats.length > 0) {
+            new Chart(jobsCtx, {
+                type: 'bar',
+                data: {
+                    labels: jobsStats.map(j => j.operator),
+                    datasets: [{
+                        label: 'Виконано деталей',
+                        data: jobsStats.map(j => j.completed_parts),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                    }]
+                }
+            });
+
+            // Jobs line chart by date
+            const dates = [...new Set(jobsStats.map(j => j.work_date))];
+            const totals = dates.map(date =>
+                jobsStats
+                    .filter(j => j.work_date === date)
+                    .reduce((sum, j) => sum + j.completed_parts, 0)
+            );
+
+            new Chart(jobsLineCtx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Деталі по днях',
+                        data: totals,
+                        fill: false,
+                        borderColor: 'rgba(54, 162, 235, 0.9)'
+                    }]
+                }
+            });
+        }
+
+        // Downtime bar chart
+        if (downtimeStats.length > 0) {
+            new Chart(downtimeCtx, {
+                type: 'bar',
+                data: {
+                    labels: downtimeStats.map(d => d.operator),
+                    datasets: [{
+                        label: 'Простої (хв)',
+                        data: downtimeStats.map(d => d.total_downtime),
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                    }]
+                }
+            });
+
+            // Downtime pie chart by reason
+            const reasonsCount = {};
+            const downtimesRes = await fetch('http://localhost:3000/api/downtime');
+            const downtimes = await downtimesRes.json();
+
+            downtimes.forEach(dt => {
+                if (!reasonsCount[dt.reason]) reasonsCount[dt.reason] = 0;
+                reasonsCount[dt.reason] += dt.duration;
+            });
+
+            new Chart(downtimePieCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(reasonsCount),
+                    datasets: [{
+                        data: Object.values(reasonsCount),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(75, 192, 192, 0.6)'
+                        ]
+                    }]
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error('Помилка завантаження статистики:', error);
+    }
+}
+
+// Initial load
 loadSchedule();
 loadDowntimes();
+loadStatistics();

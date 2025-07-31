@@ -27,45 +27,19 @@ app.get('/api/jobs', (req, res) => {
     });
 });
 
-app.post('/api/jobs', (req, res) => {
-    const { machine, customer, part, quantity, operator, plannedTime } = req.body;
-    db.run(
-        'INSERT INTO jobs (machine, customer, part, quantity, operator, plannedTime, progress) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [machine, customer, part, quantity, operator, plannedTime, 0],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/jobs/:id/progress', (req, res) => {
-    const { id } = req.params;
-    const { progress, note, shiftHours } = req.body;
-
-    db.run(
-        'UPDATE jobs SET progress = ?, note = ?, shiftHours = ?, confirmed = 0 WHERE id = ?',
-        [progress, note, shiftHours, id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ updated: this.changes });
-        }
-    );
-});
-
-app.put('/api/jobs/:id/confirm', (req, res) => {
-    const { id } = req.params;
-    db.run('UPDATE jobs SET confirmed = 1 WHERE id = ?', [id], function(err) {
+// Confirmed job progress per day (calendar/statistics)
+app.get('/api/statistics/jobs', (req, res) => {
+    db.all('SELECT * FROM job_progress_per_day', [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ confirmed: this.changes });
+        res.json(rows);
     });
 });
 
-app.delete('/api/jobs/:id', (req, res) => {
-    const { id } = req.params;
-    db.run('DELETE FROM jobs WHERE id = ?', [id], function(err) {
+// Downtime per day
+app.get('/api/statistics/downtime', (req, res) => {
+    db.all('SELECT * FROM downtime_per_day', [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ deleted: this.changes });
+        res.json(rows);
     });
 });
 
@@ -75,18 +49,6 @@ app.get('/api/parts', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
-});
-
-app.post('/api/parts', (req, res) => {
-    const { name, description, allowedMachines, timePerPiece } = req.body;
-    db.run(
-        'INSERT INTO parts (name, description, allowedMachines, timePerPiece) VALUES (?, ?, ?, ?)',
-        [name, description, allowedMachines, timePerPiece],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
 });
 
 // ===== Downtime =====

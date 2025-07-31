@@ -2,17 +2,30 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Директор — Lathe Job Tracker v11</title>
+    <title>Директор — Lathe Job Tracker v12</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Директор: Завантаженість і простої</h1>
+    <h1>Директор: Календар і статистика</h1>
 
     <h2>Підтверджені роботи</h2>
     <div id="schedule"></div>
 
     <h2>Простої</h2>
     <div id="downtimes"></div>
+
+    <h2>Графік виконання робіт</h2>
+    <canvas id="jobsChart" width="400" height="200"></canvas>
+
+    <h2>Графік простоїв</h2>
+    <canvas id="downtimeChart" width="400" height="200"></canvas>
+
+    <h2>Динаміка виконання по днях</h2>
+    <canvas id="jobsLineChart" width="400" height="200"></canvas>
+
+    <h2>Причини простоїв</h2>
+    <canvas id="downtimePieChart" width="400" height="200"></canvas>
 
     <script src="director.js"></script>
 </body>
