@@ -22,11 +22,8 @@ const db = new sqlite3.Database(path.join(__dirname, 'db.sqlite'), (err) => {
 // Get all jobs
 app.get('/api/jobs', (req, res) => {
     db.all('SELECT * FROM jobs', [], (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
-        }
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
     });
 });
 
@@ -34,40 +31,45 @@ app.get('/api/jobs', (req, res) => {
 app.post('/api/jobs', (req, res) => {
     const { machine, customer, part, quantity, operator, plannedTime } = req.body;
     db.run(
-        'INSERT INTO jobs (machine, customer, part, quantity, operator, plannedTime) VALUES (?, ?, ?, ?, ?, ?)',
-        [machine, customer, part, quantity, operator, plannedTime],
+        'INSERT INTO jobs (machine, customer, part, quantity, operator, plannedTime, progress) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [machine, customer, part, quantity, operator, plannedTime, 0],
         function(err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-            } else {
-                res.json({ id: this.lastID });
-            }
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
         }
     );
 });
 
-// Update progress
+// Update progress with operator note
 app.put('/api/jobs/:id/progress', (req, res) => {
     const { id } = req.params;
-    const { progress } = req.body;
-    db.run('UPDATE jobs SET progress = ? WHERE id = ?', [progress, id], function(err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
+    const { progress, note, shiftHours } = req.body;
+
+    db.run(
+        'UPDATE jobs SET progress = ?, note = ?, shiftHours = ?, confirmed = 0 WHERE id = ?',
+        [progress, note, shiftHours, id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
             res.json({ updated: this.changes });
         }
+    );
+});
+
+// Admin confirms job
+app.put('/api/jobs/:id/confirm', (req, res) => {
+    const { id } = req.params;
+    db.run('UPDATE jobs SET confirmed = 1 WHERE id = ?', [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ confirmed: this.changes });
     });
 });
 
-// Admin: delete job
+// Delete job (admin only)
 app.delete('/api/jobs/:id', (req, res) => {
     const { id } = req.params;
     db.run('DELETE FROM jobs WHERE id = ?', [id], function(err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json({ deleted: this.changes });
-        }
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ deleted: this.changes });
     });
 });
 

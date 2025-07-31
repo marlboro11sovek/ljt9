@@ -1,30 +1,46 @@
 async function loadSchedule() {
-    const response = await fetch('http://localhost:3000/api/jobs');
-    const jobs = await response.json();
+    try {
+        const response = await fetch('http://localhost:3000/api/jobs');
+        const jobs = await response.json();
 
-    const scheduleDiv = document.getElementById('schedule');
-    scheduleDiv.innerHTML = '';
+        const scheduleDiv = document.getElementById('schedule');
+        scheduleDiv.innerHTML = '';
 
-    const grouped = {};
-    jobs.forEach(job => {
-        if (!grouped[job.machine]) grouped[job.machine] = [];
-        grouped[job.machine].push(job);
-    });
+        const confirmedJobs = jobs.filter(job => job.confirmed === 1);
 
-    for (const machine in grouped) {
-        const machineDiv = document.createElement('div');
-        machineDiv.innerHTML = `<h2>${machine}</h2>`;
-        
-        grouped[machine].forEach(job => {
-            const jobDiv = document.createElement('div');
-            jobDiv.innerHTML = `
-                <strong>${job.part}</strong> — ${job.progress}% виконано<br>
-                Кількість: ${job.quantity}, Оператор: ${job.operator}
-            `;
-            machineDiv.appendChild(jobDiv);
+        if (confirmedJobs.length === 0) {
+            scheduleDiv.innerHTML = "<p>Немає підтверджених робіт</p>";
+            return;
+        }
+
+        const grouped = {};
+        confirmedJobs.forEach(job => {
+            if (!grouped[job.machine]) grouped[job.machine] = [];
+            grouped[job.machine].push(job);
         });
 
-        scheduleDiv.appendChild(machineDiv);
+        for (const machine in grouped) {
+            const machineDiv = document.createElement('div');
+            machineDiv.innerHTML = `<h2>${machine}</h2>`;
+
+            grouped[machine].forEach(job => {
+                const jobDiv = document.createElement('div');
+                jobDiv.innerHTML = `
+                    <strong>${job.part}</strong><br>
+                    Прогрес: ${job.progress}%<br>
+                    Кількість: ${job.quantity}<br>
+                    Оператор: ${job.operator}<br>
+                    Зміна: ${job.shiftHours || '-'} год<br>
+                    Примітка: ${job.note || '-'}
+                    <hr>
+                `;
+                machineDiv.appendChild(jobDiv);
+            });
+
+            scheduleDiv.appendChild(machineDiv);
+        }
+    } catch (error) {
+        console.error('Помилка завантаження розкладу:', error);
     }
 }
 

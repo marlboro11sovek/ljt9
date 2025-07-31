@@ -2,11 +2,11 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Lathe Job Tracker v9</title>
+    <title>Оператор — Lathe Job Tracker v10</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Lathe Job Tracker v9</h1>
+    <h1>Оператор: Поточні роботи</h1>
     <div id="jobs"></div>
 
     <form id="jobForm">
@@ -19,6 +19,15 @@
         <button type="submit">Додати роботу</button>
     </form>
 
-    <script src="app.js"></script>
+    <h2>Оновлення прогресу</h2>
+    <form id="progressForm">
+        <input type="number" id="jobId" placeholder="ID роботи" required>
+        <input type="number" id="progress" placeholder="Прогрес (%)" required>
+        <input type="number" id="shiftHours" placeholder="Тривалість зміни (год)" min="4" max="11" step="0.5" required>
+        <textarea id="note" placeholder="Примітка (обов'язково)" required></textarea>
+        <button type="submit">Оновити</button>
+    </form>
+
+    <script src="operator.js"></script>
 </body>
 </html>
