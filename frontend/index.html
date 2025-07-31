@@ -2,13 +2,14 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Оператор — Lathe Job Tracker v10</title>
+    <title>Оператор — Lathe Job Tracker v11</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Оператор: Поточні роботи</h1>
     <div id="jobs"></div>
 
+    <h2>Додати роботу</h2>
     <form id="jobForm">
         <input type="text" id="machine" placeholder="Верстат" required>
         <input type="text" id="customer" placeholder="Замовник" required>
@@ -26,6 +27,14 @@
         <input type="number" id="shiftHours" placeholder="Тривалість зміни (год)" min="4" max="11" step="0.5" required>
         <textarea id="note" placeholder="Примітка (обов'язково)" required></textarea>
         <button type="submit">Оновити</button>
+    </form>
+
+    <h2>Фіксація простою</h2>
+    <form id="downtimeForm">
+        <input type="number" id="dtJobId" placeholder="ID роботи" required>
+        <input type="text" id="dtReason" placeholder="Причина простою" required>
+        <input type="number" id="dtDuration" placeholder="Тривалість (хв)" required>
+        <button type="submit">Додати простій</button>
     </form>
 
     <script src="operator.js"></script>

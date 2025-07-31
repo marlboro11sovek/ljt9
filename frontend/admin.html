@@ -2,12 +2,27 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Адмін — Lathe Job Tracker</title>
+    <title>Адмін — Lathe Job Tracker v11</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Адміністратор: Керування роботами</h1>
+    <h1>Адміністратор: Керування роботами і деталями</h1>
+
+    <h2>Каталог деталей</h2>
+    <form id="partForm">
+        <input type="text" id="partName" placeholder="Назва деталі" required>
+        <input type="text" id="partDesc" placeholder="Опис">
+        <input type="text" id="allowedMachines" placeholder="Дозволені верстати (через кому)" required>
+        <input type="number" id="timePerPiece" placeholder="Час на 1 деталь (хв)" required>
+        <button type="submit">Додати деталь</button>
+    </form>
+    <div id="parts"></div>
+
+    <h2>Роботи</h2>
     <div id="jobs"></div>
+
+    <h2>Простої</h2>
+    <div id="downtimes"></div>
 
     <script src="admin.js"></script>
 </body>

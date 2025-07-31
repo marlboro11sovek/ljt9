@@ -65,4 +65,25 @@ document.getElementById('progressForm').addEventListener('submit', async (e) => 
     e.target.reset();
 });
 
+document.getElementById('downtimeForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const downtime = {
+        jobId: document.getElementById('dtJobId').value,
+        operator: document.getElementById('operator').value,
+        reason: document.getElementById('dtReason').value,
+        duration: document.getElementById('dtDuration').value,
+        date: new Date().toISOString().split('T')[0]
+    };
+
+    await fetch('http://localhost:3000/api/downtime', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(downtime)
+    });
+
+    alert("Простій додано ✅");
+    e.target.reset();
+});
+
 loadJobs();

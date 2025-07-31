@@ -44,4 +44,35 @@ async function loadSchedule() {
     }
 }
 
+async function loadDowntimes() {
+    try {
+        const response = await fetch('http://localhost:3000/api/downtime');
+        const downtimes = await response.json();
+
+        const downtimesDiv = document.getElementById('downtimes');
+        downtimesDiv.innerHTML = '';
+
+        if (downtimes.length === 0) {
+            downtimesDiv.innerHTML = "<p>Немає зафіксованих простоїв</p>";
+            return;
+        }
+
+        downtimes.forEach(dt => {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <strong>Простій для роботи ID: ${dt.jobId}</strong><br>
+                Оператор: ${dt.operator}<br>
+                Причина: ${dt.reason}<br>
+                Тривалість: ${dt.duration} хв<br>
+                Дата: ${dt.date}
+                <hr>
+            `;
+            downtimesDiv.appendChild(div);
+        });
+    } catch (error) {
+        console.error('Помилка завантаження простоїв:', error);
+    }
+}
+
 loadSchedule();
+loadDowntimes();
