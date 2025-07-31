@@ -19,7 +19,7 @@ const db = new sqlite3.Database(path.join(__dirname, 'db.sqlite'), (err) => {
     }
 });
 
-// Routes
+// Get all jobs
 app.get('/api/jobs', (req, res) => {
     db.all('SELECT * FROM jobs', [], (err, rows) => {
         if (err) {
@@ -30,6 +30,7 @@ app.get('/api/jobs', (req, res) => {
     });
 });
 
+// Add new job
 app.post('/api/jobs', (req, res) => {
     const { machine, customer, part, quantity, operator, plannedTime } = req.body;
     db.run(
@@ -43,6 +44,31 @@ app.post('/api/jobs', (req, res) => {
             }
         }
     );
+});
+
+// Update progress
+app.put('/api/jobs/:id/progress', (req, res) => {
+    const { id } = req.params;
+    const { progress } = req.body;
+    db.run('UPDATE jobs SET progress = ? WHERE id = ?', [progress, id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ updated: this.changes });
+        }
+    });
+});
+
+// Admin: delete job
+app.delete('/api/jobs/:id', (req, res) => {
+    const { id } = req.params;
+    db.run('DELETE FROM jobs WHERE id = ?', [id], function(err) {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.json({ deleted: this.changes });
+        }
+    });
 });
 
 // Start server
